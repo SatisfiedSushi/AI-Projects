@@ -1,8 +1,6 @@
-from AIs import SimonSays
+import AIs.GateGuesser.GateGuesser as GateGuesser
 
-tic_tac_toe = SimonSays.SimonSays()
-
-
+GateGuesser.GateGuesser()
 
 
 
