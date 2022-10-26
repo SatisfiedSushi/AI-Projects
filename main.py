@@ -7,7 +7,8 @@ print(NN.input_layer)
 print(NN.hidden_layers)
 print(NN.output_layer)
 
-print(NN.input_layer[0].inputs)
+print(NN.hidden_layers[0][0].weights)
+
 
 
 
