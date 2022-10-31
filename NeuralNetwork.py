@@ -19,7 +19,9 @@ class Neuron:
         self.bias = bias
 
     def get_output(self) -> float:
-        return np.dot(self.inputs, self.weights) + self.bias
+        output = np.dot(self.inputs, self.weights) + self.bias
+        self.value = output
+        return output
 
 class NeuralNetwork:
     def add_edge_to_graph(self, graph, e1, e2, c, w):
@@ -48,9 +50,11 @@ class NeuralNetwork:
         # networkx graphs
         self.G = nx.Graph
 
+        # set input layer
         for i in range(input_layer):
-            self.input_layer.append(Neuron([], [], 0))
+            self.input_layer.append(Neuron([], np.ones(len(self.hidden_layers[-1])), 0))
 
+        # set hidden layers
         for i in hidden_layers:
             hidden_layer = []
             for j in range(i):
@@ -63,10 +67,18 @@ class NeuralNetwork:
                 hidden_layer.append(Neuron([], weights, 0))
             self.hidden_layers.append(hidden_layer)
 
+        # set output layer
         for i in range(output_layer):
             self.output_layer.append(Neuron([], self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 0))
 
-    def forward_pass(self, input_values):
+    def set_input_layer(self, inputs: [int]):
+        for i in range(len(inputs)):
+            self.input_layer[i].change_inputs(inputs[i])
+    def forward_pass(self, neuron: Neuron):
+        output = np.maximum(0, neuron.get_output())
+        return output
+
+    def calculate_loss(self):
         pass
 
     def show_neural_network(self) -> None:
