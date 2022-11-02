@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
+import random as rndm
 
 class Neuron:
     def __init__(self, inputs, weights, bias):
@@ -38,7 +39,7 @@ class NeuralNetwork:
     def set_random_weights(self, weights):
         return_weights = []
         for i in weights:
-            return_weights.append(np.random.randint(0,5))
+            return_weights.append(rndm.random())
         return return_weights
 
     def __init__(self, input_layer: int, hidden_layers: [int], output_layer: int):
@@ -80,8 +81,8 @@ class NeuralNetwork:
         output = relu(neuron.get_output())
         return output
 
-    def calculate_loss(self):
-        pass
+    def calculate_loss(self, output, actual):
+        return -np.log(output[range(len(output)), actual])
 
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
@@ -117,8 +118,6 @@ class NeuralNetwork:
             output.append(self.forward_pass(output_neuron))
 
         return output
-
-
 
     def show_neural_network(self) -> None:
         nx.draw(self.G)
