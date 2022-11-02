@@ -83,7 +83,7 @@ class NeuralNetwork:
     def calculate_loss(self):
         pass
 
-    def network_forward_pass(self) -> None:
+    def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
         for input_neuron in self.input_layer:
             input_neuron_output = self.forward_pass(input_neuron)
@@ -110,6 +110,14 @@ class NeuralNetwork:
                 new_inputs = output_neuron.inputs.copy()
                 new_inputs.append(last_hidden_neuron_output)
                 output_neuron.change_inputs(new_inputs)
+
+        # output layer -> output
+        output = []
+        for output_neuron in self.output_layer:
+            output.append(self.forward_pass(output_neuron))
+
+        return output
+
 
 
     def show_neural_network(self) -> None:
