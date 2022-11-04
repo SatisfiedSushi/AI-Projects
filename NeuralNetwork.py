@@ -47,6 +47,9 @@ class NeuralNetwork:
         self.hidden_layers = []
         self.output_layer = []
 
+        self.weights = []
+        self.biases = []
+
         # networkx graphs
         self.G = nx.Graph
 
@@ -72,22 +75,42 @@ class NeuralNetwork:
             self.output_layer.append(Neuron([], self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 0))
 
     def set_input_layer(self, inputs: [int]):
+        inputs_ = np.clip(inputs, 1e-7, 1 - 1e-7)
         for i in range(len(inputs)):
-            self.input_layer[i].change_inputs(inputs[i])
+            self.input_layer[i].change_inputs(inputs_[i])
 
-    def forward_pass(self, neuron: Neuron) -> [int]:
+    def forward_pass(self, neuron: Neuron, activation_function: str) -> [int]:
+        output = []
+
+        # activation functions
         def relu(x):
             return np.maximum(0, x)
-        output = relu(neuron.get_output())
+
+        def softmax(x):
+            return np.exp(x)/sum(np.exp(x))
+
+        match activation_function:
+            case "relu":
+                output = relu(neuron.get_output())
+            case "softmax":
+                output = softmax(neuron.get_output())
+            case _:
+                output = relu(neuron.get_output())
+
+
         return output
 
     def calculate_loss(self, output, actual):
-        return -np.log(output[range(len(output)), actual])
+        loss = 0
+        actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
+        for i in output:
+            loss += (i * actual_[output.index(i)])
+        return -np.log(loss)
 
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
         for input_neuron in self.input_layer:
-            input_neuron_output = self.forward_pass(input_neuron)
+            input_neuron_output = self.forward_pass(input_neuron, "relu")
             for first_hidden_neuron in self.hidden_layers[0]:
                 new_inputs = first_hidden_neuron.inputs.copy()
                 new_inputs.append(input_neuron_output)
@@ -98,7 +121,7 @@ class NeuralNetwork:
             for hidden_layer in self.hidden_layers:
                 if hidden_layer != self.hidden_layers[-1]:
                     for hidden_neuron in hidden_layer:
-                        hidden_neuron_output = self.forward_pass(hidden_neuron)
+                        hidden_neuron_output = self.forward_pass(hidden_neuron, "relu")
                         for next_hidden_neuron in self.hidden_layers[self.hidden_layers.index(hidden_layer) + 1]:
                             new_inputs = next_hidden_neuron.inputs.copy()
                             new_inputs.append(hidden_neuron_output)
@@ -106,7 +129,7 @@ class NeuralNetwork:
 
         # last hidden layer -> output layer
         for last_hidden_neuron in self.hidden_layers[-1]:
-            last_hidden_neuron_output = self.forward_pass(last_hidden_neuron)
+            last_hidden_neuron_output = self.forward_pass(last_hidden_neuron, "relu")
             for output_neuron in self.output_layer:
                 new_inputs = output_neuron.inputs.copy()
                 new_inputs.append(last_hidden_neuron_output)
@@ -115,7 +138,7 @@ class NeuralNetwork:
         # output layer -> output
         output = []
         for output_neuron in self.output_layer:
-            output.append(self.forward_pass(output_neuron))
+            output.append(self.forward_pass(output_neuron, "relu"))
 
         return output
 
