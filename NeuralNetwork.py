@@ -20,6 +20,8 @@ class Neuron:
         self.bias = bias
 
     def get_output(self) -> float:
+        print("inputs: " + str(self.inputs))
+        print("weights: " + str(self.weights))
         output = np.dot(self.inputs, self.weights) + self.bias
         return output
 
@@ -66,13 +68,13 @@ class NeuralNetwork:
                     weights = np.zeros(len(self.input_layer))
                 else:
                     weights = np.zeros(len(self.hidden_layers[-1]))
-                weights = self.set_random_weights(weights)
+                weights = np.clip(self.set_random_weights(weights), 1e-7, 1 - 1e-7)
                 hidden_layer.append(Neuron([], weights, 0))
             self.hidden_layers.append(hidden_layer)
 
         # set output layer
         for i in range(output_layer):
-            self.output_layer.append(Neuron([], self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 0))
+            self.output_layer.append(Neuron([], np.clip(self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 1e-7, 1 - 1e-7), 0))
 
     def set_input_layer(self, inputs: [int]):
         inputs_ = np.clip(inputs, 1e-7, 1 - 1e-7)
@@ -97,7 +99,6 @@ class NeuralNetwork:
             case _:
                 output = relu(neuron.get_output())
 
-
         return output
 
     def calculate_loss(self, output, actual):
@@ -107,8 +108,38 @@ class NeuralNetwork:
             loss += (i * actual_[output.index(i)])
         return -np.log(loss)
 
+    def reset_inputs(self):
+        for input_neuron in self.input_layer:
+            input_neuron.change_inputs([])
+
+        for hidden_layer in self.hidden_layers:
+            for hidden_neuron in hidden_layer:
+                hidden_neuron.change_inputs([])
+
+        for output_neuron in self.output_layer:
+            output_neuron.change_inputs([])
+
+    def get_weights(self):
+        input_weights = []
+        hidden_weights = []
+        output_weights = []
+
+        for input_neuron in self.input_layer:
+            input_weights.append(input_neuron.weights)
+
+        for hidden_layer in self.hidden_layers:
+            for hidden_neuron in hidden_layer:
+                hidden_neuron.change_inputs([])
+
+        for output_neuron in self.output_layer:
+            output_neuron.change_inputs([])
+
+    def set_weights(self):
+        pass
+
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
+        print("input layer:")
         for input_neuron in self.input_layer:
             input_neuron_output = self.forward_pass(input_neuron, "relu")
             for first_hidden_neuron in self.hidden_layers[0]:
@@ -119,6 +150,7 @@ class NeuralNetwork:
         # hidden layer -> next hidden layer
         if len(self.hidden_layers) > 1:
             for hidden_layer in self.hidden_layers:
+                print("hidden layer " + str(self.hidden_layers.index(hidden_layer) + 1) + ":")
                 if hidden_layer != self.hidden_layers[-1]:
                     for hidden_neuron in hidden_layer:
                         hidden_neuron_output = self.forward_pass(hidden_neuron, "relu")
@@ -128,6 +160,7 @@ class NeuralNetwork:
                             next_hidden_neuron.change_inputs(new_inputs)
 
         # last hidden layer -> output layer
+        print("output layer:")
         for last_hidden_neuron in self.hidden_layers[-1]:
             last_hidden_neuron_output = self.forward_pass(last_hidden_neuron, "relu")
             for output_neuron in self.output_layer:
