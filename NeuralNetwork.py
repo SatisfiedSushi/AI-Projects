@@ -5,6 +5,17 @@ from networkx.drawing.nx_agraph import graphviz_layout
 import random as rndm
 
 class Neuron:
+    def dot(self, v1, v2):
+        output = 0
+        if not type(v1) is array:
+
+
+
+        for v_ in v2:
+            for v in v1:
+                output += v * v_
+
+        return output
     def __init__(self, inputs, weights, bias):
         self.inputs = inputs
         self.weights = weights
@@ -20,9 +31,13 @@ class Neuron:
         self.bias = bias
 
     def get_output(self) -> float:
+        transposed_weights = np.array(self.weights)
+        reference_inputs = np.array(self.inputs)
         print("inputs: " + str(self.inputs))
-        print("weights: " + str(self.weights))
-        output = np.dot(self.inputs, self.weights) + self.bias
+        print("transposed_weights: " + str(transposed_weights))
+        output = self.dot(reference_inputs, transposed_weights) + self.bias
+        print("output: " + str(output))
+        print("shapes: " + str(reference_inputs.shape) + " " + str(transposed_weights.shape))
         return output
 
 class NeuralNetwork:
@@ -52,7 +67,6 @@ class NeuralNetwork:
         self.weights = []
         self.biases = []
 
-        self.input_weights = []
         self.hidden_weights = []
         self.output_weights = []
 
@@ -61,7 +75,6 @@ class NeuralNetwork:
 
         # set input layer
         for i in range(input_layer):
-            self.input_weights.append([1])
             self.input_layer.append(Neuron([], 1, 0))
 
         # set hidden layers
@@ -78,10 +91,15 @@ class NeuralNetwork:
                 hidden_layer_weights.append(weights)
                 hidden_layer.append(Neuron([], weights, 0))
             self.hidden_layers.append(hidden_layer)
+            self.hidden_weights.append(hidden_layer_weights)
 
         # set output layer
         for i in range(output_layer):
-            self.output_layer.append(Neuron([], np.clip(self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 1e-7, 1 - 1e-7), 0))
+            other_weights = np.clip(self.set_random_weights(np.zeros(len(self.hidden_layers[-1]))), 1e-7, 1 - 1e-7)
+            self.output_layer.append(Neuron([], other_weights, 0))
+            self.output_weights.append(other_weights)
+
+        self.weights = [self.hidden_weights, self.output_weights]
 
     def set_input_layer(self, inputs: [int]):
         inputs_ = np.clip(inputs, 1e-7, 1 - 1e-7)
@@ -126,15 +144,21 @@ class NeuralNetwork:
         for output_neuron in self.output_layer:
             output_neuron.change_inputs([])
 
-    def set_weights(self, input_weights, hidden_weights, output_weights):
+    def set_weights(self, hidden_weights, output_weights):
+        self.hidden_weights = hidden_weights
+        self.output_weights = output_weights
+
         for hidden_layer in self.hidden_layers:
             for hidden_neuron in hidden_layer:
-                hidden_neuron.change_weights()
+                hidden_neuron.change_weights(hidden_weights[self.hidden_layers.index(hidden_layer)][hidden_layer.index(hidden_neuron)])
+
+        for output_neuron in self.output_layer:
+            output_neuron.change_weights(hidden_weights[self.output_weights.index(output_neuron)])
 
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
-        print("input layer:")
         for input_neuron in self.input_layer:
+            print("input neuron")
             input_neuron_output = self.forward_pass(input_neuron, "relu")
             for first_hidden_neuron in self.hidden_layers[0]:
                 new_inputs = first_hidden_neuron.inputs.copy()
@@ -144,9 +168,9 @@ class NeuralNetwork:
         # hidden layer -> next hidden layer
         if len(self.hidden_layers) > 1:
             for hidden_layer in self.hidden_layers:
-                print("hidden layer " + str(self.hidden_layers.index(hidden_layer) + 1) + ":")
                 if hidden_layer != self.hidden_layers[-1]:
                     for hidden_neuron in hidden_layer:
+                        print("hidden neuron")
                         hidden_neuron_output = self.forward_pass(hidden_neuron, "relu")
                         for next_hidden_neuron in self.hidden_layers[self.hidden_layers.index(hidden_layer) + 1]:
                             new_inputs = next_hidden_neuron.inputs.copy()
@@ -154,7 +178,6 @@ class NeuralNetwork:
                             next_hidden_neuron.change_inputs(new_inputs)
 
         # last hidden layer -> output layer
-        print("output layer:")
         for last_hidden_neuron in self.hidden_layers[-1]:
             last_hidden_neuron_output = self.forward_pass(last_hidden_neuron, "relu")
             for output_neuron in self.output_layer:
