@@ -52,16 +52,22 @@ class NeuralNetwork:
         self.weights = []
         self.biases = []
 
+        self.input_weights = []
+        self.hidden_weights = []
+        self.output_weights = []
+
         # networkx graphs
         self.G = nx.Graph
 
         # set input layer
         for i in range(input_layer):
+            self.input_weights.append([1])
             self.input_layer.append(Neuron([], 1, 0))
 
         # set hidden layers
         for i in hidden_layers:
             hidden_layer = []
+            hidden_layer_weights = []
             for j in range(i):
                 weights = []
                 if i == hidden_layers[0]:
@@ -69,6 +75,7 @@ class NeuralNetwork:
                 else:
                     weights = np.zeros(len(self.hidden_layers[-1]))
                 weights = np.clip(self.set_random_weights(weights), 1e-7, 1 - 1e-7)
+                hidden_layer_weights.append(weights)
                 hidden_layer.append(Neuron([], weights, 0))
             self.hidden_layers.append(hidden_layer)
 
@@ -119,23 +126,10 @@ class NeuralNetwork:
         for output_neuron in self.output_layer:
             output_neuron.change_inputs([])
 
-    def get_weights(self):
-        input_weights = []
-        hidden_weights = []
-        output_weights = []
-
-        for input_neuron in self.input_layer:
-            input_weights.append(input_neuron.weights)
-
+    def set_weights(self, input_weights, hidden_weights, output_weights):
         for hidden_layer in self.hidden_layers:
             for hidden_neuron in hidden_layer:
-                hidden_neuron.change_inputs([])
-
-        for output_neuron in self.output_layer:
-            output_neuron.change_inputs([])
-
-    def set_weights(self):
-        pass
+                hidden_neuron.change_weights()
 
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
