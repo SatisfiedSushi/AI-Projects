@@ -7,13 +7,11 @@ import random as rndm
 class Neuron:
     def dot(self, v1, v2):
         output = 0
-        if not type(v1) is array:
-
-
-
-        for v_ in v2:
+        if type(v1) is list:
             for v in v1:
-                output += v * v_
+                output += v * v2[v1.index(v)]
+        else:
+            output += v1 * v2
 
         return output
     def __init__(self, inputs, weights, bias):
@@ -31,13 +29,12 @@ class Neuron:
         self.bias = bias
 
     def get_output(self) -> float:
-        transposed_weights = np.array(self.weights)
-        reference_inputs = np.array(self.inputs)
+        transposed_weights = self.weights
+        reference_inputs = self.inputs
         print("inputs: " + str(self.inputs))
         print("transposed_weights: " + str(transposed_weights))
         output = self.dot(reference_inputs, transposed_weights) + self.bias
         print("output: " + str(output))
-        print("shapes: " + str(reference_inputs.shape) + " " + str(transposed_weights.shape))
         return output
 
 class NeuralNetwork:
@@ -78,12 +75,13 @@ class NeuralNetwork:
             self.input_layer.append(Neuron([], 1, 0))
 
         # set hidden layers
+        iteration = 0
         for i in hidden_layers:
             hidden_layer = []
             hidden_layer_weights = []
             for j in range(i):
                 weights = []
-                if i == hidden_layers[0]:
+                if iteration == 0:
                     weights = np.zeros(len(self.input_layer))
                 else:
                     weights = np.zeros(len(self.hidden_layers[-1]))
@@ -92,6 +90,8 @@ class NeuralNetwork:
                 hidden_layer.append(Neuron([], weights, 0))
             self.hidden_layers.append(hidden_layer)
             self.hidden_weights.append(hidden_layer_weights)
+
+            iteration += 1
 
         # set output layer
         for i in range(output_layer):
