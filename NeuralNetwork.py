@@ -31,10 +31,7 @@ class Neuron:
     def get_output(self) -> float:
         transposed_weights = self.weights
         reference_inputs = self.inputs
-        print("inputs: " + str(self.inputs))
-        print("transposed_weights: " + str(transposed_weights))
         output = self.dot(reference_inputs, transposed_weights) + self.bias
-        print("output: " + str(output))
         return output
 
 class NeuralNetwork:
@@ -153,12 +150,11 @@ class NeuralNetwork:
                 hidden_neuron.change_weights(hidden_weights[self.hidden_layers.index(hidden_layer)][hidden_layer.index(hidden_neuron)])
 
         for output_neuron in self.output_layer:
-            output_neuron.change_weights(hidden_weights[self.output_weights.index(output_neuron)])
+            output_neuron.change_weights(output_weights[self.output_layer.index(output_neuron)])
 
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
         for input_neuron in self.input_layer:
-            print("input neuron")
             input_neuron_output = self.forward_pass(input_neuron, "relu")
             for first_hidden_neuron in self.hidden_layers[0]:
                 new_inputs = first_hidden_neuron.inputs.copy()
@@ -170,7 +166,6 @@ class NeuralNetwork:
             for hidden_layer in self.hidden_layers:
                 if hidden_layer != self.hidden_layers[-1]:
                     for hidden_neuron in hidden_layer:
-                        print("hidden neuron")
                         hidden_neuron_output = self.forward_pass(hidden_neuron, "relu")
                         for next_hidden_neuron in self.hidden_layers[self.hidden_layers.index(hidden_layer) + 1]:
                             new_inputs = next_hidden_neuron.inputs.copy()
