@@ -40,8 +40,8 @@ print("actual: " + str(actual))
 loss = NN.calculate_loss(prediction, actual)
 print("loss:" + str(loss)'''
 
-iterations_per_epoch = 100
-epochs = 10
+iterations_per_epoch = 1
+epochs = 1
 
 
 best_hidden_weights = []
@@ -51,7 +51,6 @@ lowest_loss = 999999999999
 for epoch in range(epochs):
     for iteration in range(iterations_per_epoch):
         NN = NeuralNetwork.NeuralNetwork(2, [4,4,4,4], 2)
-
         '''print("iteration: " + str(iteration))'''
         x = random.randint(0, 1)
         y = random.randint(0, 1)
@@ -78,7 +77,7 @@ for epoch in range(epochs):
         loss = NN.calculate_loss(prediction, actual)
         '''print("prediction: " + str(prediction))
         print("loss: " + str(loss))'''
-        
+
         if abs(loss) < lowest_loss:
             lowest_loss = abs(loss)
             best_hidden_weights = NN.hidden_weights

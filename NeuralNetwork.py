@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
 import random as rndm
@@ -34,6 +34,25 @@ class Neuron:
         output = self.dot(reference_inputs, transposed_weights) + self.bias
         return output
 
+class ActivationFucntions:
+    def __init__(self):
+        self.forward = self.Forward()
+        self.backward = self.Backward()
+    class Forward:
+        def relu(x):
+            return np.maximum(0, x)
+
+        def softmax(x):
+            return np.exp(x) / sum(np.exp(x))
+
+    class Backward:
+        def relu(x):
+            x[x<=0] = 0
+            x[x>0] = 1
+            return x
+
+
+# Multilayer Perceptrons (MLPs) neural network model
 class NeuralNetwork:
     def add_edge_to_graph(self, graph, e1, e2, c, w):
         graph.add_edge(e1, e2, color=c, weight=w)
@@ -107,19 +126,16 @@ class NeuralNetwork:
         output = []
 
         # activation functions
-        def relu(x):
-            return np.maximum(0, x)
-
-        def softmax(x):
-            return np.exp(x)/sum(np.exp(x))
+        activation_functions = ActivationFucntions()
+        get_output = neuron.get_output()
 
         match activation_function:
             case "relu":
-                output = relu(neuron.get_output())
+                output = ActivationFucntions.Forward.relu(get_output)
             case "softmax":
-                output = softmax(neuron.get_output())
+                output = ActivationFucntions.Forward.softmax(get_output)
             case _:
-                output = relu(neuron.get_output())
+                output = ActivationFucntions.Forward.relu(get_output)
 
         return output
 
@@ -187,5 +203,14 @@ class NeuralNetwork:
 
         return output
 
+    def backpropagate(self, delta, activation_function_output):
+        output = []
+
+        derivative_activation_function_output =
+
+        return output
+
     def show_neural_network(self) -> None:
-        nx.draw(self.G)
+        #nx.draw(self.G)
+        plt.show()
+
