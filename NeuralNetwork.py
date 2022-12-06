@@ -55,9 +55,12 @@ class ActivationFucntions:
 
     class Backward:
         def relu(x):
-            x[x<=0] = 0
-            x[x>0] = 1
-            return x
+            output = 0
+            if x <= 0:
+                output = 0
+            else:
+                output = 1
+            return output
 
 
 # Multilayer Perceptrons (MLPs) neural network model
@@ -232,10 +235,37 @@ class NeuralNetwork:
     def backpropagate_error(self, neuron: Neuron, expected: int):
         error = 0
 
-        derivative_activation_function_output = ActivationFucntions.Backward.relu(neuron.get_output())
-        derivative_error = derivative_activation_function_output * (Neuron.get_output() - expected)
+        # Get the output of the neuron
+        output = neuron.get_output()
+
+        # Calculate the derivative of the activation function with respect to the output
+        derivative_activation_function_output = ActivationFucntions.Backward.relu(int(output))
+
+        # Calculate the derivative of the error with respect to the output
+        derivative_error = derivative_activation_function_output * (output - expected)
+
+        # Update the error of the neuron
+        error = derivative_error
+
+        # Loop through the inputs and update the weights
+        for i in range(len(neuron.inputs)):
+            # Get the current weight and input value
+            weight = neuron.weights[i]
+            input_value = neuron.inputs[i]
+
+            # Calculate the weight update
+            weight_update = -self.learning_rate * derivative_error * input_value
+
+            # Update the weight
+            neuron.weights[i] = weight + weight_update
+
+        # Update the bias
+        neuron.bias = neuron.bias - self.learning_rate * derivative_error
 
         return error
+
+    def network_backpropagate(self) -> []:
+
 
     def show_neural_network(self) -> None:
         #nx.draw(self.G)

@@ -40,8 +40,8 @@ print("actual: " + str(actual))
 loss = NN.calculate_loss(prediction, actual)
 print("loss:" + str(loss)'''
 
-iterations_per_epoch = 1000
-epochs = 10
+iterations_per_epoch = 1
+epochs = 1
 
 
 best_hidden_weights = []
@@ -102,11 +102,11 @@ else:
     actual.append(0)
 
 # print weights
-for layer in NN.hidden_weights:
+'''for layer in NN.hidden_weights:
     for weights in layer:
         print(weights)
 for weights in NN.output_weights:
-    print(weights)
+    print(weights)'''
 
 NN.set_input_layer([x, y])
 prediction = NN.network_forward_pass()
@@ -114,6 +114,9 @@ loss = NN.cost_function(prediction, actual)
 print(actual)
 print(prediction)
 print(loss)
+x_output = NN.backpropagate_error(NN.output_layer[0], x)
+print('x error: ' + str(x_output))
+print('y error: ' + str(NN.backpropagate_error(NN.output_layer[1], y)))
 '''print(best_hidden_weights)
 print(best_output_weights)
 '''
