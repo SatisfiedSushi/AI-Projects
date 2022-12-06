@@ -18,6 +18,11 @@ class Neuron:
         self.inputs = inputs
         self.weights = weights
         self.bias = bias
+        self.activation_function = ""
+        self.delta = 0
+
+    def change_activation_function(self, activation_function: str) -> None:
+        self.activation_function = activation_function
 
     def change_inputs(self, inputs: [float]) -> None:
         self.inputs = inputs
@@ -27,6 +32,9 @@ class Neuron:
 
     def change_bias(self, bias: float) -> None:
         self.bias = bias
+
+    def change_delta(self, delta: int) -> None:
+        self.delta = delta
 
     def get_output(self) -> float:
         transposed_weights = self.weights
@@ -72,6 +80,9 @@ class NeuralNetwork:
             return_weights.append(rndm.random())
         return return_weights
 
+    def set_random_biases(self, biases):
+        return rndm.random()
+
     def __init__(self, input_layer: int, hidden_layers: [int], output_layer: int):
         self.input_layer = []
         self.hidden_layers = []
@@ -82,6 +93,11 @@ class NeuralNetwork:
 
         self.hidden_weights = []
         self.output_weights = []
+
+        self.predicted_output = []
+        self.network_error = []
+
+        self.learning_rate = 0.7
 
         # networkx graphs
         self.G = nx.Graph
@@ -126,7 +142,6 @@ class NeuralNetwork:
         output = []
 
         # activation functions
-        activation_functions = ActivationFucntions()
         get_output = neuron.get_output()
 
         match activation_function:
@@ -139,12 +154,20 @@ class NeuralNetwork:
 
         return output
 
-    def calculate_loss(self, output, actual):
+    def cost_function(self, output, actual):
         loss = 0
+        # actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
+        for i in range(len(output)):
+            loss_ = (output[i] - actual[i])**2
+            loss += np.clip(loss_, 1e-7, 1 - 1e-7)
+
+        '''loss = 0
         actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
         for i in output:
             loss += (i * actual_[output.index(i)])
-        return -np.log(loss)
+        return -np.log(loss)'''
+
+        return loss
 
     def reset_inputs(self):
         for input_neuron in self.input_layer:
@@ -176,6 +199,7 @@ class NeuralNetwork:
                 new_inputs = first_hidden_neuron.inputs.copy()
                 new_inputs.append(input_neuron_output)
                 first_hidden_neuron.change_inputs(new_inputs)
+                first_hidden_neuron.change_activation_function("relu")
 
         # hidden layer -> next hidden layer
         if len(self.hidden_layers) > 1:
@@ -187,6 +211,7 @@ class NeuralNetwork:
                             new_inputs = next_hidden_neuron.inputs.copy()
                             new_inputs.append(hidden_neuron_output)
                             next_hidden_neuron.change_inputs(new_inputs)
+                            next_hidden_neuron.change_activation_function("relu")
 
         # last hidden layer -> output layer
         for last_hidden_neuron in self.hidden_layers[-1]:
@@ -195,6 +220,7 @@ class NeuralNetwork:
                 new_inputs = output_neuron.inputs.copy()
                 new_inputs.append(last_hidden_neuron_output)
                 output_neuron.change_inputs(new_inputs)
+                output_neuron.change_activation_function("relu")
 
         # output layer -> output
         output = []
@@ -203,12 +229,13 @@ class NeuralNetwork:
 
         return output
 
-    def backpropagate(self, delta, activation_function_output):
-        output = []
+    def backpropagate_error(self, neuron: Neuron, expected: int):
+        error = 0
 
-        derivative_activation_function_output =
+        derivative_activation_function_output = ActivationFucntions.Backward.relu(neuron.get_output())
+        derivative_error = derivative_activation_function_output * (Neuron.get_output() - expected)
 
-        return output
+        return error
 
     def show_neural_network(self) -> None:
         #nx.draw(self.G)
