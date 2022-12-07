@@ -19,7 +19,7 @@ class Neuron:
         self.weights = weights
         self.bias = bias
         self.activation_function = ""
-        self.delta = 0
+        self.error = 0
 
     def change_activation_function(self, activation_function: str) -> None:
         self.activation_function = activation_function
@@ -33,8 +33,8 @@ class Neuron:
     def change_bias(self, bias: float) -> None:
         self.bias = bias
 
-    def change_delta(self, delta: int) -> None:
-        self.delta = delta
+    def change_error(self, error) -> None:
+        self.error = error
 
     def get_output(self) -> float:
         transposed_weights = self.weights
@@ -42,7 +42,7 @@ class Neuron:
         output = self.dot(reference_inputs, transposed_weights) + self.bias
         return output
 
-class ActivationFucntions:
+class ActivationFunctions:
     def __init__(self):
         self.forward = self.Forward()
         self.backward = self.Backward()
@@ -100,7 +100,7 @@ class NeuralNetwork:
         self.predicted_output = []
         self.network_error = []
 
-        self.learning_rate = 0.7
+        self.learning_rate = 0.1 # 0.7
 
         # networkx graphs
         self.G = nx.Graph
@@ -149,11 +149,11 @@ class NeuralNetwork:
 
         match activation_function:
             case "relu":
-                output = ActivationFucntions.Forward.relu(get_output)
+                output = ActivationFunctions.Forward.relu(get_output)
             case "softmax":
-                output = ActivationFucntions.Forward.softmax(get_output)
+                output = ActivationFunctions.Forward.softmax(get_output)
             case _:
-                output = ActivationFucntions.Forward.relu(get_output)
+                output = ActivationFunctions.Forward.relu(get_output)
 
         return output
 
@@ -232,20 +232,20 @@ class NeuralNetwork:
 
         return output
 
-    def backpropagate_error(self, neuron: Neuron, expected: int):
-        error = 0
-
+    def backpropagate_error(self, neuron: Neuron, expected_: int):
+        expected = np.clip(expected_, 1e-7, 1 - 1e-7)
         # Get the output of the neuron
         output = neuron.get_output()
 
         # Calculate the derivative of the activation function with respect to the output
-        derivative_activation_function_output = ActivationFucntions.Backward.relu(int(output))
+        derivative_activation_function_output = ActivationFunctions.Backward.relu(int(output))
+        # print('derivative_activation_function_output: ' + str(derivative_activation_function_output))
 
         # Calculate the derivative of the error with respect to the output
         derivative_error = derivative_activation_function_output * (output - expected)
 
         # Update the error of the neuron
-        error = derivative_error
+        neuron.change_error(derivative_error)
 
         # Loop through the inputs and update the weights
         for i in range(len(neuron.inputs)):
@@ -262,9 +262,18 @@ class NeuralNetwork:
         # Update the bias
         neuron.bias = neuron.bias - self.learning_rate * derivative_error
 
-        return error
+    def network_backpropagate(self, expected) -> []:
+        for output_neuron in self.output_layer:
+            self.backpropagate_error(output_neuron, expected[self.output_layer.index(output_neuron)])
 
-    def network_backpropagate(self) -> []:
+        # Propagate the error to the hidden layers
+        for hidden_layer in self.hidden_layers:
+            for hidden_neuron in hidden_layer:
+                hidden_neuron_error = 0
+                for output_neuron in self.output_layer:
+                    hidden_neuron_error += output_neuron.error * output_neuron.weights[
+                        hidden_layer.index(hidden_neuron)]
+                self.backpropagate_error(hidden_neuron, hidden_neuron_error)
 
 
     def show_neural_network(self) -> None:

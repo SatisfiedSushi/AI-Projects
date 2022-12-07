@@ -40,8 +40,8 @@ print("actual: " + str(actual))
 loss = NN.calculate_loss(prediction, actual)
 print("loss:" + str(loss)'''
 
-iterations_per_epoch = 1
-epochs = 1
+iterations_per_epoch = 1000
+epochs = 10
 
 
 best_hidden_weights = []
@@ -57,14 +57,16 @@ for epoch in range(epochs):
         y = random.randint(0, 1)
 
         actual = []
-        if x == 0:
+        '''if x == 0:
             actual.append(1)
         else:
             actual.append(0)
         if y == 0:
             actual.append(1)
         else:
-            actual.append(0)
+            actual.append(0)'''
+        actual.append(x)
+        actual.append(y)
 
         # print weights
         '''for layer in NN.hidden_weights:
@@ -79,10 +81,9 @@ for epoch in range(epochs):
         '''print("prediction: " + str(prediction))
         print("loss: " + str(loss))'''
 
-        if abs(loss) < lowest_loss:
-            lowest_loss = abs(loss)
-            best_hidden_weights = NN.hidden_weights
-            best_output_weights = NN.output_weights
+        NN.network_backpropagate(actual)
+        best_output_weights = NN.output_weights
+        best_hidden_weights = NN.hidden_weights
 
 NN = NeuralNetwork.NeuralNetwork(2, [4,4,4,4], 2)
 if len(best_output_weights) != 0 and len(best_hidden_weights) != 0:
@@ -102,11 +103,13 @@ else:
     actual.append(0)
 
 # print weights
-'''for layer in NN.hidden_weights:
+for layer in NN.hidden_weights:
+    print('Hidden Layer Weights')
     for weights in layer:
         print(weights)
+print('Output Layer Weights')
 for weights in NN.output_weights:
-    print(weights)'''
+    print(weights)
 
 NN.set_input_layer([x, y])
 prediction = NN.network_forward_pass()
@@ -114,9 +117,6 @@ loss = NN.cost_function(prediction, actual)
 print(actual)
 print(prediction)
 print(loss)
-x_output = NN.backpropagate_error(NN.output_layer[0], x)
-print('x error: ' + str(x_output))
-print('y error: ' + str(NN.backpropagate_error(NN.output_layer[1], y)))
 '''print(best_hidden_weights)
 print(best_output_weights)
 '''
