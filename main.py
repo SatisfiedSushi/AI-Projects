@@ -29,7 +29,7 @@ for epoch in range(epochs):
     for iteration in range(iterations_per_epoch):
         print('iteration: ' + str(iteration + (iterations_per_epoch * epoch) + 1))
 
-        input, actual = no_change()
+        input, actual = not_gate()
         _neural_network.network_train(input, actual)
         stored_error.append(_neural_network.network_error)
 
