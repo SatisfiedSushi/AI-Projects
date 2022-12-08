@@ -100,7 +100,7 @@ class NeuralNetwork:
         self.predicted_output = []
         self.network_error = []
 
-        self.learning_rate = 0.1 # 0.7
+        self.learning_rate = 0.7 # 0.7
 
         # networkx graphs
         self.G = nx.Graph
@@ -232,7 +232,7 @@ class NeuralNetwork:
 
         return output
 
-    def backpropagate_error(self, neuron: Neuron, expected_: int):
+    def backpropagate_error(self, neuron: Neuron, expected_=None):
         expected = np.clip(expected_, 1e-7, 1 - 1e-7)
         # Get the output of the neuron
         output = neuron.get_output()
@@ -240,27 +240,28 @@ class NeuralNetwork:
         # Calculate the derivative of the activation function with respect to the output
         derivative_activation_function_output = ActivationFunctions.Backward.relu(int(output))
         # print('derivative_activation_function_output: ' + str(derivative_activation_function_output))
+        if expected is not None:
 
-        # Calculate the derivative of the error with respect to the output
-        derivative_error = derivative_activation_function_output * (output - expected)
+            # Calculate the derivative of the error with respect to the output
+            derivative_error = derivative_activation_function_output * (output - expected)
 
-        # Update the error of the neuron
-        neuron.change_error(derivative_error)
+            # Update the error of the neuron
+            neuron.change_error(derivative_error)
 
-        # Loop through the inputs and update the weights
-        for i in range(len(neuron.inputs)):
-            # Get the current weight and input value
-            weight = neuron.weights[i]
-            input_value = neuron.inputs[i]
+            #    Loop through the inputs and update the weights
+            for i in range(len(neuron.inputs)):
+                # Get the current weight and input value
+                weight = neuron.weights[i]
+                input_value = neuron.inputs[i]
 
-            # Calculate the weight update
-            weight_update = -self.learning_rate * derivative_error * input_value
+                # Calculate the weight update
+                weight_update = -self.learning_rate * derivative_error * input_value
 
-            # Update the weight
-            neuron.weights[i] = weight + weight_update
+                # Update the weight
+                neuron.weights[i] = weight + weight_update
 
-        # Update the bias
-        neuron.bias = neuron.bias - self.learning_rate * derivative_error
+            # Update the bias
+            neuron.bias = neuron.bias - self.learning_rate * derivative_error
 
     def network_backpropagate(self, expected) -> []:
         for output_neuron in self.output_layer:
@@ -275,8 +276,18 @@ class NeuralNetwork:
                         hidden_layer.index(hidden_neuron)]
                 self.backpropagate_error(hidden_neuron, hidden_neuron_error)
 
+    def network_train(self, inputs, actual):
+        self.reset_inputs()
+        self.set_input_layer(inputs)
+        self.predicted_output = self.network_forward_pass()
+        self.network_backpropagate(actual)
+        self.network_error = self.cost_function(self.predicted_output, actual)
+
+    def show_error_line(self, stored_error, all_iterations):
+        plt.scatter(all_iterations, stored_error)
+        plt.plot(all_iterations, stored_error)
+        plt.show()
 
     def show_neural_network(self) -> None:
         #nx.draw(self.G)
         plt.show()
-
