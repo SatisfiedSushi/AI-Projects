@@ -53,6 +53,9 @@ class ActivationFunctions:
         def softmax(x):
             return np.exp(x) / sum(np.exp(x))
 
+        def sigmoid(x):
+            return 1 / (1 + np.exp(-x))
+
     class Backward:
         def relu(x):
             output = 0
@@ -61,6 +64,9 @@ class ActivationFunctions:
             else:
                 output = 1
             return output
+
+        def sigmoid(x):
+            return np.multiply(1 / (1 + np.exp(-x)), 1 - (1 / (1 + np.exp(-x))))
 
 
 # Multilayer Perceptrons (MLPs) neural network model
@@ -100,8 +106,8 @@ class NeuralNetwork:
         self.predicted_output = []
         self.network_error = []
 
-        self.learning_rate = 0.7 # 0.7
-        self.learning_rate_decay = 0.9
+        self.learning_rate = 0.2 # 0.7
+        self.learning_rate_decay = 0.1
 
         # networkx graphs
         self.G = nx.Graph
@@ -149,10 +155,12 @@ class NeuralNetwork:
         get_output = neuron.get_output()
 
         match activation_function:
-            case "relu":
+            case "relu":  # linear
                 output = ActivationFunctions.Forward.relu(get_output)
             case "softmax":
                 output = ActivationFunctions.Forward.softmax(get_output)
+            case "sigmoid":  # non-linear
+                output = ActivationFunctions.Forward.sigmoid(get_output)
             case _:
                 output = ActivationFunctions.Forward.relu(get_output)
 
@@ -198,45 +206,45 @@ class NeuralNetwork:
     def network_forward_pass(self) -> []:
         # input layer -> first hidden layer
         for input_neuron in self.input_layer:
-            input_neuron_output = self.forward_pass(input_neuron, "relu")
+            input_neuron_output = self.forward_pass(input_neuron, "sigmoid")
             for first_hidden_neuron in self.hidden_layers[0]:
                 new_inputs = first_hidden_neuron.inputs.copy()
                 new_inputs.append(input_neuron_output)
                 first_hidden_neuron.change_inputs(new_inputs)
-                first_hidden_neuron.change_activation_function("relu")
+                first_hidden_neuron.change_activation_function("sigmoid")
 
         # hidden layer -> next hidden layer
         if len(self.hidden_layers) > 1:
             for hidden_layer in self.hidden_layers:
                 if hidden_layer != self.hidden_layers[-1]:
                     for hidden_neuron in hidden_layer:
-                        hidden_neuron_output = self.forward_pass(hidden_neuron, "relu")
+                        hidden_neuron_output = self.forward_pass(hidden_neuron, "sigmoid")
                         for next_hidden_neuron in self.hidden_layers[self.hidden_layers.index(hidden_layer) + 1]:
                             new_inputs = next_hidden_neuron.inputs.copy()
                             new_inputs.append(hidden_neuron_output)
                             next_hidden_neuron.change_inputs(new_inputs)
-                            next_hidden_neuron.change_activation_function("relu")
+                            next_hidden_neuron.change_activation_function("sigmoid")
 
         # last hidden layer -> output layer
         for last_hidden_neuron in self.hidden_layers[-1]:
-            last_hidden_neuron_output = self.forward_pass(last_hidden_neuron, "relu")
+            last_hidden_neuron_output = self.forward_pass(last_hidden_neuron, "sigmoid")
             for output_neuron in self.output_layer:
                 new_inputs = output_neuron.inputs.copy()
                 new_inputs.append(last_hidden_neuron_output)
                 output_neuron.change_inputs(new_inputs)
-                output_neuron.change_activation_function("relu")
+                output_neuron.change_activation_function("sigmoid")
 
         # output layer -> output
         output = []
         for output_neuron in self.output_layer:
-            output.append(self.forward_pass(output_neuron, "relu"))
+            output.append(self.forward_pass(output_neuron, "sigmoid"))
 
         return output
 
     def network_backpropagate(self, predicted_output, expected_output):
         # Calculate the error for the output layer
         for i, output_neuron in enumerate(self.output_layer):
-            output_neuron.error = (predicted_output[i] - expected_output[i]) * ActivationFunctions.Backward.relu(
+            output_neuron.error = (predicted_output[i] - expected_output[i]) * ActivationFunctions.Backward.sigmoid(
                 output_neuron.get_output())
 
         # Propagate the error to the hidden layers
@@ -246,7 +254,7 @@ class NeuralNetwork:
                 for output_neuron in self.output_layer:
                     hidden_neuron_error += output_neuron.error * output_neuron.weights[
                         hidden_layer.index(hidden_neuron)]
-                hidden_neuron.error = hidden_neuron_error * ActivationFunctions.Backward.relu(
+                hidden_neuron.error = hidden_neuron_error * ActivationFunctions.Backward.sigmoid(
                     hidden_neuron.get_output())
 
         # Update the weights and biases
