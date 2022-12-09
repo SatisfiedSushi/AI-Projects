@@ -1,4 +1,4 @@
-from NeuralNetwork import NeuralNetwork
+from NeuralNetwork import SupervisedNeuralNetwork
 import numpy as np
 from random import *
 
@@ -11,12 +11,12 @@ lowest_loss = 999999999999
 
 stored_error = []
 
-_neural_network = NeuralNetwork(2, [4,4,4,4], 2)
+_neural_network = SupervisedNeuralNetwork(1, [1], 1)
 
 # Training Games
 def not_gate():
-    input = [randint(0, 1), randint(0, 1)]
-    actual = [0 if input[0] == 1 else 1, 0 if input[0] == 1 else 1]
+    input = [randint(0, 1)]
+    actual = [0 if input[0] == 1 else 1]
 
     return input, actual
 
@@ -24,6 +24,9 @@ def no_change():
     input = [randint(0, 1), randint(0, 1)]
     actual = input.copy()
     return input, actual
+
+def tic_tac_toe():
+    pass
 
 for epoch in range(epochs):
     for iteration in range(iterations_per_epoch):

@@ -70,7 +70,7 @@ class ActivationFunctions:
 
 
 # Multilayer Perceptrons (MLPs) neural network model
-class NeuralNetwork:
+class SupervisedNeuralNetwork:
     def add_edge_to_graph(self, graph, e1, e2, c, w):
         graph.add_edge(e1, e2, color=c, weight=w)
 
