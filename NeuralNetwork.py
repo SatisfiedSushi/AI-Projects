@@ -70,7 +70,7 @@ class ActivationFunctions:
 
 
 # Multilayer Perceptrons (MLPs) neural network model
-class SupervisedNeuralNetwork:
+class UnsupervisedNeuralNetwork:
     def add_edge_to_graph(self, graph, e1, e2, c, w):
         graph.add_edge(e1, e2, color=c, weight=w)
 
@@ -92,10 +92,23 @@ class SupervisedNeuralNetwork:
     def set_random_biases(self, biases):
         return rndm.random()
 
-    def __init__(self, input_layer: int, hidden_layers: [int], output_layer: int):
+    def __init__(self,
+                 input_layer: int,
+                 hidden_layers: [int],
+                 output_layer: int,
+                 input_layer_activation_function='sigmoid',
+                 hidden_layers_activation_function='sigmoid',
+                 output_layer_activation_function='sigmoid'
+                 ):
+
+
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
+
+        self.input_layer_activation_function = input_layer_activation_function
+        self.hidden_layers_activation_function = hidden_layers_activation_function
+        self.output_layer_activation_function = output_layer_activation_function
 
         self.weights = []
         self.biases = []
@@ -154,15 +167,25 @@ class SupervisedNeuralNetwork:
         # activation functions
         get_output = neuron.get_output()
 
-        match activation_function:
-            case "relu":  # linear
+        '''match activation_function:
+            case "relu":  # linear  
                 output = ActivationFunctions.Forward.relu(get_output)
             case "softmax":
                 output = ActivationFunctions.Forward.softmax(get_output)
             case "sigmoid":  # non-linear
                 output = ActivationFunctions.Forward.sigmoid(get_output)
             case _:
-                output = ActivationFunctions.Forward.relu(get_output)
+                output = ActivationFunctions.Forward.relu(get_output)'''
+        af = {
+            'relu' : ActivationFunctions.Forward.relu,
+            'softmax': ActivationFunctions.Forward.softmax,
+            'sigmoid': ActivationFunctions.Forward.sigmoid
+        }
+
+        try:
+            output = af[activation_function](get_output)
+        except KeyError:
+            output = af['relu'](get_output)
 
         return output
 
@@ -203,15 +226,15 @@ class SupervisedNeuralNetwork:
         for output_neuron in self.output_layer:
             output_neuron.change_weights(output_weights[self.output_layer.index(output_neuron)])
 
-    def network_forward_pass(self) -> []:
+    def network_forward_pass(self) -> list:
         # input layer -> first hidden layer
         for input_neuron in self.input_layer:
-            input_neuron_output = self.forward_pass(input_neuron, "sigmoid")
+            input_neuron_output = self.forward_pass(input_neuron, self.input_layer_activation_function)
             for first_hidden_neuron in self.hidden_layers[0]:
                 new_inputs = first_hidden_neuron.inputs.copy()
                 new_inputs.append(input_neuron_output)
                 first_hidden_neuron.change_inputs(new_inputs)
-                first_hidden_neuron.change_activation_function("sigmoid")
+                first_hidden_neuron.change_activation_function(self.input_layer_activation_function)
 
         # hidden layer -> next hidden layer
         if len(self.hidden_layers) > 1:
@@ -271,6 +294,13 @@ class SupervisedNeuralNetwork:
         self.predicted_output = self.network_forward_pass()
         self.network_backpropagate(self.predicted_output, actual)
         self.network_error = self.cost_function(self.predicted_output, actual)
+
+    def network_use(self, inputs):
+        self.reset_inputs()
+        self.set_input_layer(inputs)
+        self.predicted_output = self.network_forward_pass()
+
+        return self.predicted_output
 
     def show_error_line(self, stored_error, all_iterations):
         plt.scatter(all_iterations, stored_error)
