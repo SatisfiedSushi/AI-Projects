@@ -1,7 +1,6 @@
-from NeuralNetwork import UnsupervisedNeuralNetwork
+from AIs.NeuralNetworks.MLPNeuralNetwork import UnsupervisedNeuralNetwork
 import numpy as np
-from TrainingGames import TrainingGames
-from random import *
+from AIs import TrainingGames
 
 iterations_per_epoch = 1000
 epochs = 10
@@ -48,13 +47,13 @@ def print_biases() -> None:
         print(neuron.bias)
 
 # Training Games
-
+not_gate = TrainingGames.not_gate()
 
 for epoch in range(epochs):
     for iteration in range(iterations_per_epoch):
         print('iteration: ' + str(iteration + (iterations_per_epoch * epoch) + 1))
 
-        input_, actual = TrainingGames.not_gate.run_game()
+        input_, actual = not_gate.run_game()
         _neural_network.network_train(input_, actual)
         stored_error.append(_neural_network.network_error)
 

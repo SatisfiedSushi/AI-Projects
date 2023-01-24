@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.drawing.nx_agraph import graphviz_layout
+import AIs.ActivationFunctions as ActivationFunctions
 import random as rndm
 
 class Neuron:
@@ -42,47 +42,8 @@ class Neuron:
         output = self.dot(reference_inputs, transposed_weights) + self.bias
         return output
 
-class ActivationFunctions:
-    def __init__(self):
-        self.forward = self.Forward()
-        self.backward = self.Backward()
-    class Forward:
-        def relu(x):
-            return np.maximum(0, x)
-
-        def softmax(x):
-            return np.exp(x) / sum(np.exp(x))
-
-        def sigmoid(x):
-            return 1 / (1 + np.exp(-x))
-
-    class Backward:
-        def relu(x):
-            output = 0
-            if x <= 0:
-                output = 0
-            else:
-                output = 1
-            return output
-
-        def sigmoid(x):
-            return np.multiply(1 / (1 + np.exp(-x)), 1 - (1 / (1 + np.exp(-x))))
-
-
 # Multilayer Perceptrons (MLPs) neural network model
 class UnsupervisedNeuralNetwork:
-    def add_edge_to_graph(self, graph, e1, e2, c, w):
-        graph.add_edge(e1, e2, color=c, weight=w)
-
-    def state_position(self, points, graph, axis):
-        color_list = ['red', 'blue', 'green', 'yellow', 'purple']
-        positions = {point: point for point in points}
-        edges = self.G.edges()
-        nodes = self.G.nodes()
-
-        edge_colors = [self.G[u][v]['color'] for u, v in edges]
-        nx.draw(graph, pos=positions, node_size=0, edge_color=edge_colors, node_color='black', ax=axis)
-
     def set_random_weights(self, weights):
         return_weights = []
         for i in weights:
@@ -198,7 +159,7 @@ class UnsupervisedNeuralNetwork:
 
         '''loss = 0
         actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
-        for i in output:
+        for i in output:c
             loss += (i * actual_[output.index(i)])
         return -np.log(loss)'''
 
