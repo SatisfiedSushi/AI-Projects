@@ -4,6 +4,7 @@ import networkx as nx
 import AIs.ActivationFunctions as ActivationFunctions
 import random as rndm
 
+
 class Neuron:
     def dot(self, v1, v2):
         output = 0
@@ -14,6 +15,7 @@ class Neuron:
             output += v1 * v2
 
         return output
+
     def __init__(self, inputs, weights, bias):
         self.inputs = inputs
         self.weights = weights
@@ -42,8 +44,9 @@ class Neuron:
         output = self.dot(reference_inputs, transposed_weights) + self.bias
         return output
 
-# Multilayer Perceptrons (MLPs) neural network model
-class UnsupervisedNeuralNetwork:
+
+# Multilayer Perceptron (MLP) neural network model
+class SupervisedNeuralNetwork:
     def set_random_weights(self, weights):
         return_weights = []
         for i in weights:
@@ -62,7 +65,6 @@ class UnsupervisedNeuralNetwork:
                  output_layer_activation_function='sigmoid'
                  ):
 
-
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
@@ -80,7 +82,7 @@ class UnsupervisedNeuralNetwork:
         self.predicted_output = []
         self.network_error = []
 
-        self.learning_rate = 0.2 # 0.7
+        self.learning_rate = 0.2  # 0.7
         self.learning_rate_decay = 0.1
 
         # networkx graphs
@@ -138,7 +140,7 @@ class UnsupervisedNeuralNetwork:
             case _:
                 output = ActivationFunctions.Forward.relu(get_output)'''
         af = {
-            'relu' : ActivationFunctions.Forward.relu,
+            'relu': ActivationFunctions.Forward.relu,
             'softmax': ActivationFunctions.Forward.softmax,
             'sigmoid': ActivationFunctions.Forward.sigmoid
         }
@@ -150,12 +152,14 @@ class UnsupervisedNeuralNetwork:
 
         return output
 
-    def cost_function(self, output, actual):
+    def cost_function(self, output, actual, cost_function):
         loss = 0
-        # actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
-        for i in range(len(output)):
-            loss_ = (output[i] - actual[i]) ** 2
-            loss += np.clip(loss_, 1e-7, 1 - 1e-7)
+        match cost_function:
+            case "mse":
+                # actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
+                for i in range(len(output)):
+                    loss_ = (output[i] - actual[i]) ** 2
+                    loss += np.clip(loss_, 1e-7, 1 - 1e-7)
 
         '''loss = 0
         actual_ = np.clip(actual, 1e-7, 1 - 1e-7)
@@ -182,7 +186,8 @@ class UnsupervisedNeuralNetwork:
 
         for hidden_layer in self.hidden_layers:
             for hidden_neuron in hidden_layer:
-                hidden_neuron.change_weights(hidden_weights[self.hidden_layers.index(hidden_layer)][hidden_layer.index(hidden_neuron)])
+                hidden_neuron.change_weights(
+                    hidden_weights[self.hidden_layers.index(hidden_layer)][hidden_layer.index(hidden_neuron)])
 
         for output_neuron in self.output_layer:
             output_neuron.change_weights(output_weights[self.output_layer.index(output_neuron)])
@@ -247,14 +252,14 @@ class UnsupervisedNeuralNetwork:
                 for i, input_neuron in enumerate(self.input_layer):
                     hidden_neuron.weights[i] -= self.learning_rate * hidden_neuron.error * input_neuron.inputs
                 hidden_neuron.bias -= self.learning_rate * hidden_neuron.error
-        self.learning_rate *- self.learning_rate_decay
+        self.learning_rate * - self.learning_rate_decay
 
     def network_train(self, inputs, actual):
         self.reset_inputs()
         self.set_input_layer(inputs)
         self.predicted_output = self.network_forward_pass()
         self.network_backpropagate(self.predicted_output, actual)
-        self.network_error = self.cost_function(self.predicted_output, actual)
+        self.network_error = self.cost_function(self.predicted_output, actual, "mse")
 
     def network_use(self, inputs):
         self.reset_inputs()
@@ -269,5 +274,5 @@ class UnsupervisedNeuralNetwork:
         plt.show()
 
     def show_neural_network(self) -> None:
-        #nx.draw(self.G)
+        # nx.draw(self.G)
         plt.show()

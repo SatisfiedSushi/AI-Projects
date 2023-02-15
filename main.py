@@ -1,4 +1,4 @@
-from AIs.NeuralNetworks.MLPNeuralNetwork import UnsupervisedNeuralNetwork
+from AIs.NeuralNetworks.MLPNeuralNetwork import SupervisedNeuralNetwork
 import numpy as np
 from AIs import TrainingGames
 
@@ -17,7 +17,7 @@ config = {
     'output_activation_function' : 'relu'
 }
 
-_neural_network = UnsupervisedNeuralNetwork(1, [4,4,4,4], 1, *config)
+_neural_network = SupervisedNeuralNetwork(1, [4,4,4,4], 1, *config)
 
 def print_weights() -> None:
     i = 1
