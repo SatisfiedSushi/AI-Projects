@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from  AIs.TensorFlow.TFCNN import SupervisedNeuralNetwork as CNN
 
 # grab local data set - will switch to sql database
-myFile = 'C:/Users/angel/OneDrive/Documents/GitHub/Q-Learning-Practice/TrainingDataSets/Flowers'
+myFile = 'C:/Users/robot/Documents/GitHub/AI-Projects/TrainingDataSets/Flowers'
 dataset_url = os.path.abspath("./" + myFile)
 archive = tf.keras.utils.get_file(myFile, 'file://' + dataset_url)
 data_dir = pathlib.Path(archive).with_suffix('')
@@ -69,10 +69,9 @@ nn.test_model()
 
 plt.figure(figsize=(10, 10))
 for images, labels in train_ds.take(1):
-  for i in range(0):
-    ax = plt.subplot(3, 3, i + 1)
-    plt.imshow(images[i].numpy().astype("uint8"))
-    plt.title(class_names[labels[i]])
+    ax = plt.subplot(3, 3, 1)
+    plt.imshow(images[0].numpy().astype("uint8"))
+    plt.title(class_names[labels[0]])
     plt.axis("off")
 
 plt.show()

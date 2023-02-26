@@ -27,7 +27,7 @@ class SupervisedNeuralNetwork:
             tf.keras.layers.Conv2D(32, 3, activation='relu'),
             tf.keras.layers.MaxPooling2D(),
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(1024, activation='relu'),
+            tf.keras.layers.Dense(128, activation='sigmoid'),
             tf.keras.layers.Dense(self.num_classes)
         ])
 
@@ -41,13 +41,20 @@ class SupervisedNeuralNetwork:
         except:
             print('failed to compile')
 
-
     def train_model(self):
         try:
+            checkpoint_path = 'AIs/TensorFlow/Checkpoints'
+            checkpoint_dir = os.path.dirname(checkpoint_path)
+
+            cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                             save_weights_only=True,
+                                                             verbose=1)
+
             self.model.fit(
                 self.training_data.get('features'),
                 validation_data=self.training_data.get('actual'),
                 epochs=10,
+                callbacks=[cp_callback]
                 )
         except:
             print('no training data')
