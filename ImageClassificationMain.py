@@ -6,3 +6,4 @@ import PIL.Image
 import tensorflow as tf
 
 # https://www.tensorflow.org/tutorials/load_data/images
+

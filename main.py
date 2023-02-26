@@ -1,6 +1,6 @@
 from AIs.NeuralNetworks.MLPNeuralNetwork import SupervisedNeuralNetwork
 import numpy as np
-from AIs.DataSets import TrainingGames
+from TrainingDataSets import TrainingGames
 
 iterations_per_epoch = 1000
 epochs = 10
