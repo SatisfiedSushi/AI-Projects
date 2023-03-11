@@ -15,7 +15,7 @@ class SupervisedNeuralNetwork:
         }
 
         # how many categories in the images to detect
-        self.num_classes = 4
+        self.num_classes = 15
 
         # create CNN
         self.model = tf.keras.Sequential([
@@ -35,6 +35,7 @@ class SupervisedNeuralNetwork:
         try:
             self.model.compile(
                 optimizer='adam',
+                # loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy']
             )
@@ -61,8 +62,16 @@ class SupervisedNeuralNetwork:
 
     def test_model(self):
         try:
-            print(self.model.predict(
+            self.model.predict(
                 self.test_data.get('features')
+            )
+        except:
+            print('no training data')
+
+    def single_test_model(self, passed_test_dataset):
+        try:
+            print(self.model.predict(
+                passed_test_dataset.get('features')
             ))
         except:
             print('no training data')
